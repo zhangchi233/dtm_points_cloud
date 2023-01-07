@@ -15,9 +15,11 @@ print("has read read points")
 import points_grid
 from points_grid import cloth
 
-points_grid.draw_3d_points(particles, '^')
-clothes = cloth(particles)
-
+#points_grid.draw_3d_points(particles, '^')
+clothes = cloth(particles,cellsize=0.5,displacement=1)
+print("has start to do cfs")
 particle_xyz = clothes.implementation_CSF(0.03)
-points_grid.draw_3d_points(particle_xyz, '^')
+#clothes.draw_particles(show_difference=True,zmin = -clothes.MinZ,zmax = -clothes.MaxZ)
+clothes.draw_particles(show_OriginalZ=True,zmin = -clothes.MinZ,zmax = -clothes.MaxZ)
+points_grid.draw_3d_points(particle_xyz, '^',-clothes.MinZ,-clothes.MaxZ)
 # remeber to generate database.txt
