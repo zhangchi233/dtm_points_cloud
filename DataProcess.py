@@ -22,8 +22,9 @@ def thinning(file,data=None,mode="grid",n_random = 10,percentage=0.9,cellsize=1,
 
                 x = points.x.copy()
                 y = points.y.copy()
-                z = points.y.copy()
+                z = points.z.copy()
                 data_thinning+=list(zip(x,y,z))
+
     else:
         import copy
         data_thinning = data.deepcopy()
@@ -102,15 +103,109 @@ def thinning(file,data=None,mode="grid",n_random = 10,percentage=0.9,cellsize=1,
                     grid_data[:n_random]
                     data_new+=list(grid_data)
         data_thinning= data_new
-
-
-
-
-
-
     return data_thinning
+
+def interpolation(dt,coordinatex, coordinatey,mode="TIN"):
+    if mode == "TIN":
+        if dt.is_inside_convex_hull(coordinatex, coordinatey) == False:
+            return -999999
+        else:
+            value = dt.interpolate_tin_linear(coordinatex,coordinatey)
+            return value
+    elif mode == "Nearest":
+        if dt.is_inside_convex_hull(coordinatex, coordinatey) == False:
+            return -999999
+        else:
+            value = dt.interpolate_nn(coordinatex,coordinatey)
+            return value
+    elif mode == "laplace":
+        if dt.is_inside_convex_hull(coordinatex, coordinatey) == False:
+            return -999999
+        else:
+            value = dt.interpolate_laplace(coordinatex,coordinatey)
+            return value
+    elif mode =="NNI":
+        if dt.is_inside_convex_hull(coordinatex, coordinatey) == False:
+            return -999999
+        else:
+            #print("the value is ",dt.is_inside_convex_hull(coordinatex,coordinatey))
+            try:
+                value = dt.interpolate_nni(coordinatex,coordinatey)
+            except:
+                return -999999
+            return value
+
+
+
+
+def write_to_raster(data,driver="GTiff",filename='new.tif',CRS='+proj=sterea +lat_0=52.1561605555556 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +towgs84=565.4171,50.3319,465.5524,1.9342,-1.6677,9.1019,4.0725 +units=m +no_defs +type=crs',
+                  resolution=0.5,mode="NNI"):
+    if type(data) == type([]):
+        data = np.array(data)
+
+    xmax = data[:,0].max()
+    xmin = data[:,0].min()
+    ymax = data[:, 1].max()
+    ymin = data[:, 1].min()
+    width = int((xmax-xmin)//resolution)+1
+    height = int((ymax - ymin) // resolution) + 1
+    import rasterio
+    from rasterio.transform import Affine
+    crs = CRS
+
+    transform =  Affine.translation(xmin - resolution / 2, ymin - resolution / 2) * Affine.scale(resolution, resolution)
+    new_dataset = rasterio.open(
+        filename,
+        'w',
+        driver='GTiff',
+        height=height,
+        width=width,
+        count=1,
+        dtype=data.dtype,
+        crs=crs,
+        transform=transform,
+        nodata = -999999
+    )
+    import startinpy
+    dt = startinpy.DT()
+    dt.snap_tolerance = 0.01
+    dt.insert(data)
+    values = np.empty((height,width))
+    for row in range(height):
+        for col in range(width):
+            pixel_x,pixel_y= transform*(col,row)
+           # print(dt.is_inside_convex_hull(pixel_x,pixel_y))
+
+           # print(row,col,width)
+            value = interpolation(dt,pixel_x,pixel_y,mode=mode)
+
+
+            values[row][col] = value
+    new_dataset.write(values, 1)
+    new_dataset.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__=='__main__':
-    d = thinning("somepath.las",mode='grid')
+
+    d = thinning("somepath.las",mode='random',percentage=0.1)
+
+    write_to_raster(d,mode='TIN')
+
+    d = thinning("cfs.laz", mode='random', percentage=0.1)
+    print(d)
+
+    write_to_raster(d, filename="thinning.tif",mode="TIN")
 
 
 

@@ -138,6 +138,7 @@ class cloth:
         plt.show()
 
     def getNeighbors(self):
+        '''
         self.KDtree = QueryTree(self.Particles)
         neighborpoints = []
         for row in self.Particles:
@@ -149,9 +150,27 @@ class cloth:
                 row_neightbors.append(neighborindex)
             neighborpoints.append(row_neightbors)
 
+        self.neighborpoints = neighborpoints
+        '''
+        neighborpoints = []
+        for i in range(len(self.Particles)):
+            row_neightbors = []
+            for t in range(len(self.Particles[i])):
+                pt = self.Particles[i][t]
+                neighborindex=[]
+                if i+1<len(self.Particles) and self.Particles[i+1][t].Outer==False :
+                    neighborindex.append((i+1)*len(self.Particles[i])+t)
+
+                if  i - 1 >=0 and self.Particles[i -1][t].Outer == False:
+                    neighborindex.append((i - 1) * len(self.Particles[i]) + t)
+                if t+1<len(self.Particles[i]) and self.Particles[i][t+1].Outer==False:
+                    neighborindex.append((i)*len(self.Particles[i])+t+1)
+                if t-1>=0 and self.Particles[i][t-1].Outer==False:
+                    neighborindex.append((i)*len(self.Particles[i])+t-1)
+                row_neightbors.append(neighborindex)
+            neighborpoints.append(row_neightbors)
 
         self.neighborpoints = neighborpoints
-
     # all points move once
     def do_one_movement(self):  # they must be the same order
         max_deltaZ = 0
@@ -175,6 +194,7 @@ class cloth:
 
                 if particle.delta_z>=max_deltaZ:
                     max_deltaZ = particle.delta_z
+        #self.draw_particles()
 
         return max_deltaZ
 
@@ -185,7 +205,7 @@ class cloth:
         # generate the relation between each particles and its neightbors
 
         delta_z = self.Particles[0][0].delta_z
-        threhold = self.mass * threhold
+        threhold =  threhold
         i= 0
         while True:
 
