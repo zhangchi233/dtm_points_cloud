@@ -1,6 +1,6 @@
 # dtm_points_cloud
 # how to cropping the file
-open the cropping.py file, change the filename and output into the file u want, u can run crop the file
+open the cropping.py file, change the filename and output into the file u want, u can run file cropping algorithm, default bound is middle, u can add u own bound in [xmin,xmax,ymin,ymax]
 
 # how to do thinning and convert file to raster file
 Open the DataProcess.py and run it change the filename in the thinning and output filename in write_to_raster
