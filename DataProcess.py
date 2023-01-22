@@ -12,7 +12,7 @@ def write_to_file(filename,header,data):
         point_record.y = data[:, 1]
         point_record.z = data[:, 2]
         writer.write_points(point_record)
-
+# write back the particles back to las files
 def thinning(file,data=None,mode="grid",n_random = 10,percentage=0.9,cellsize=1,cell_manipulation='average'):
 
     if data == None:
@@ -104,8 +104,9 @@ def thinning(file,data=None,mode="grid",n_random = 10,percentage=0.9,cellsize=1,
                     data_new+=list(grid_data)
         data_thinning= data_new
     return data_thinning
+#do thinning use different method
 
-def interpolation(dt,coordinatex, coordinatey,mode="TIN"):
+def interpolation(dt,coordinatex, coordinatey,mode="TIN"): # according to the points use differenct interpolation method to write a dtm
     if mode == "TIN":
         if dt.is_inside_convex_hull(coordinatex, coordinatey) == False:
             return -999999
@@ -137,7 +138,7 @@ def interpolation(dt,coordinatex, coordinatey,mode="TIN"):
 
 
 
-
+# writhe the data as raster file
 def write_to_raster(data,driver="GTiff",filename='new.tif',CRS='+proj=sterea +lat_0=52.1561605555556 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +towgs84=565.4171,50.3319,465.5524,1.9342,-1.6677,9.1019,4.0725 +units=m +no_defs +type=crs',
                   resolution=0.5,mode="NNI"):
     if type(data) == type([]):
@@ -196,16 +197,17 @@ def write_to_raster(data,driver="GTiff",filename='new.tif',CRS='+proj=sterea +la
 
 
 
+
 if __name__=='__main__':
 
     d = thinning("somepath.las",mode='random',percentage=0.1)
 
-    write_to_raster(d,mode='TIN')
+    write_to_raster(d,filename='originl.tif',mode='laplace')
 
     d = thinning("cfs.laz", mode='random', percentage=0.1)
-    print(d)
+    #print(d)
 
-    write_to_raster(d, filename="thinning.tif",mode="TIN")
+    write_to_raster(d, filename="thinning.tif",mode="laplace")
 
 
 

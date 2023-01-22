@@ -1,5 +1,5 @@
 import os
-path = r"F:\dem1015\assignment4"
+path = os.getcwd()
 os.chdir(path)
 print("start to read")
 

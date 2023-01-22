@@ -1,12 +1,13 @@
 import numpy as np
 from scipy.spatial import KDTree
 
-class Point:
+
+class Point: # a base class to define the points
     def __init__(self,x,y,z):
         self.x = x
         self.y = y
         self.z = z
-    def __mul__(self, other):
+    def __mul__(self, other): # if u want to convert point to upside down u will need it
         #new_x = self.x * other
         #new_y = self.y * other
         new_z =  self.z * other
@@ -14,21 +15,22 @@ class Point:
 
 
 
-class Particle(Point):
+class Particle(Point): # particle used for cloth simulation filtering algorithm,
     def __init__(self,x,y,z,displacement,mass,originalZ,outer=False):
         super().__init__(x,y,z)
-        self.displacement = displacement
-        self.moveable = True
-        self.gravity = -1*mass
-        self.movedirection = self.gravity
-        self.delta_z = self.movedirection
-        self.originalZ = originalZ
-        self.Outer = outer
+        self.displacement = displacement # how internal forces
+        self.moveable = True # define whether move or not
+        self.gravity = -1*mass # define the gravity of each particle
+        self.movedirection = self.gravity # initial moving vector for each particle
+        self.delta_z = self.movedirection # how long has the particle move now
+        self.originalZ = originalZ # the starting points of particles
+        self.Outer = outer # whether the point is out or boundary of delaunay triangular of the interpolated points
     def update(self,others):
         # it is very risky to pull downwards, since if we adjust the displacement to tight, it is possible that the points pulled below originZ
         # as a result, making it failed to cover the buildings
         # the way to solve it is to limit the maximum downward vector, what about this, at most averge difference of 4 neighbor points?
         # at most 4 times of gravity?
+
         if self.moveable:
             vector = 0
             average_height = 0
@@ -52,7 +54,7 @@ class Particle(Point):
         else:
             self.movedirection=0
     def shift(self):
-
+        # make particles change its position
         self.z+=self.movedirection
         self.delta_z = abs(self.movedirection)
         if self.z<=self.originalZ:
@@ -82,7 +84,7 @@ class cloth:
         self.Xvertex, self.Yvertex = np.meshgrid(self.xv,self.yv)
         self.displacement = displacement
         self.mass = mass
-
+        # form the cloth
         if interpolation =="TIN":
             import startinpy
             dt = startinpy.DT()
@@ -121,13 +123,13 @@ class cloth:
         import matplotlib.pyplot as plt
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
-        if show_OriginalZ== False and show_difference==False:
+        if show_OriginalZ== False and show_difference==False: # show the z value of points after csf
             xs, ys, zs = zip(*[[pt.x,pt.y,pt.z] for row in self.Particles for pt in row])
             ax.scatter(xs, ys, zs, marker='o')
-        elif show_OriginalZ:
+        elif show_OriginalZ: # show the original z value of points before csf
             xs, ys, zs = zip(*[[pt.x,pt.y,-pt.originalZ] for row in self.Particles for pt in row])
             ax.scatter(xs, ys, zs, marker='^')
-        elif show_difference:
+        elif show_difference: # show change of z value
 
             xs, ys, zs = zip(*[[pt.x, pt.y, -pt.z+pt.originalZ] for row in self.Particles for pt in row])
             ax.scatter(xs, ys, zs, marker='^')
@@ -152,6 +154,7 @@ class cloth:
 
         self.neighborpoints = neighborpoints
         '''
+        # find the near points for points on the cloth
         neighborpoints = []
         for i in range(len(self.Particles)):
             row_neightbors = []
@@ -208,7 +211,7 @@ class cloth:
         threhold =  threhold
         i= 0
         while True:
-
+            # all points move once until all points' change within tolerance
             delta_z = self.do_one_movement()
 
             i += 1
@@ -219,6 +222,7 @@ class cloth:
 
 
                 break
+        # return new x,y,z position of cloth
         particle_xyz = [[particle.x,particle.y,-particle.z] for row in self.Particles for particle in row]
         return particle_xyz
 
@@ -227,7 +231,7 @@ class cloth:
 
 
 
-class QueryTree(KDTree):
+class QueryTree(KDTree): # useless, will cause error, it aims to find the near points that exert internal force to each other
     def __init__(self,points):
         Points = []
         if type(points[0][0]) == type(Particle(1,1,1,1,1,1,1)):
@@ -261,7 +265,7 @@ class QueryTree(KDTree):
 
 
         return Z
-def draw_3d_points(Points,marker,zmin,zmax):
+def draw_3d_points(Points,marker,zmin,zmax): # to visualize the points' position
     import matplotlib.pyplot as plt
     xs =[]
     ys = []
