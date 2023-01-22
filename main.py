@@ -41,6 +41,7 @@ import laspy
 file = "somepath.las"
 las=laspy.read(file)
 header = las.header
+# write the result after csf into laz file
 DataProcess.write_to_file("cfs.laz",header,particle_xyz)
 
 
@@ -52,5 +53,19 @@ DataProcess.write_to_file("cfs.laz",header,particle_xyz)
 #default value without thinning
 
 d = DataProcess.thinning("cfs.laz",mode='random',percentage=0.1)
-DataProcess.write_to_raster(particle_xyz,filename='cfs_withoutthinning.tif')
-DataProcess.write_to_raster(d,filename="thinning.tif")
+DataProcess.write_to_raster(particle_xyz,filename='cfs_withoutthinning.tif',mode='laplace')
+DataProcess.write_to_raster(d,filename="thinning.tif",mode='laplace')
+d = DataProcess.thinning("somepath.las",mode='random',percentage=0.1)
+DataProcess.write_to_raster(d,filename='originl.tif',mode='laplace')
+
+# extract isolines
+import extract_isolines
+# extract isolinse from tif file of csf without thinning
+extract_isolines.write_to_wkt("cfs_withoutthinning.tif",1,[24,26,28],"isolines_csf.wkt",snap = 0.001)
+# extract dtm of the csf after thinning
+extract_isolines.write_to_wkt("thinning.tif", 1, [24, 26, 28], "isolines_thinning.wkt", snap=0.001)
+# extract originl file's dtm after thinning
+extract_isolines.write_to_wkt("originl.tif", 1, [24, 26, 28], "isolines_originl_csf.wkt", snap=0.001)
+# since the range of csf's dtm is from 22.3-28.9 and the original dtm is from 22.3-45 we split the isolines one is the same isolines range as csf
+# another is the remainning isolines for the convenience of comparing
+extract_isolines.write_to_wkt("originl.tif", 1, [30, 32, 34,36,38,40,42,44], "isolines_originl_csf.wkt", snap=0.001)
