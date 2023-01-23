@@ -46,10 +46,9 @@ def startcontour(segments,snap=0.0001):
         nextx = seg.endx
         nexty = seg.endy
         #ring = recursive_seg(segments,nextx,nexty,ring,seg)
-        ring = another_seg(segments,nextx,nexty,ring,seg,snap=0.0001)
+        ring = another_seg(segments,nextx,nexty,ring,seg,snap=snap)
         #ring = brutal_seg(segments,nextx,nexty,ring,seg,snap = snap)
         contour_line.append(ring)
-        print(len(segments))
         if len(segments) == 0:
             break
         seg = segments[0]
@@ -433,7 +432,11 @@ def draw_contour(contours):
             plt.plot(x,y)
     plt.show()
 if __name__ == '__main__':
-
+    data = rasterio.open('cfs_withoutthinning.tif').read(1)
+    contour_lines = extract_contour(data,[25],snap = 0.0001)
+    draw_contour(contour_lines)
+    plt.contour(data,[25])
+    plt.show() # test the contourline function
     write_to_wkt("cfs_withoutthinning.tif",1,[24,26,28],"isolines_csf.wkt",snap = 0.001)
     write_to_wkt("thinning.tif", 1, [24, 26, 28], "isolines_thinning.wkt", snap=0.001)
     #write_to_wkt("originl.tif", 1, [24, 26, 28], "isolines_originl_csf.wkt", snap=0.0001)
