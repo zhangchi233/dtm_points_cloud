@@ -34,30 +34,26 @@ class Segment:
 def startcontour(segments,snap=0.0001):
     contour_line = []
     seg = segments[0]
-    previous_length = len(segments)
-    # given the segments of a level, make sure segments are connected to each other
     while segments:
 
         ring = []
         if seg.startx == None:
-            # in case some self intersection scenario as a result of infinite loop
-            #print(len(segments))
             segments.remove(seg)
             seg = segments[0]
             continue
         ring.append([seg.startx,seg.starty])
+
         nextx = seg.endx
         nexty = seg.endy
         #ring = recursive_seg(segments,nextx,nexty,ring,seg)
-
-        ring = another_seg(segments,nextx,nexty,ring,seg,snap=snap)
+        ring = another_seg(segments,nextx,nexty,ring,seg,snap=0.0001)
         #ring = brutal_seg(segments,nextx,nexty,ring,seg,snap = snap)
         contour_line.append(ring)
-
+        print(len(segments))
         if len(segments) == 0:
             break
-
         seg = segments[0]
+
     return contour_line
 
 def another_seg(segments,nextx,nexty,ring,seg,snap):
@@ -70,7 +66,7 @@ def another_seg(segments,nextx,nexty,ring,seg,snap):
             neighbors = seg.neighborcells
             newx = None
             newy = None
-            newseg = None
+            newseg = seg
             segments.remove(seg)
             for index in neighbors:
                 for line in segments:
@@ -98,8 +94,6 @@ def another_seg(segments,nextx,nexty,ring,seg,snap):
             if newx == None and newy==None:
                 break
             seg = newseg
-            if seg == None:
-                return segment
             nextx = newx
             nexty = newy
         return segment
@@ -352,7 +346,7 @@ def extract_contour(data,levels,snap = 0.0001):
                     Segment(endx=point_x2, endy=point_y2, startx=point_x3, starty=point_y3, cellindex=(i, j),
                             neighborcells=neighbors2,shape = data.shape))
                     elif len(points) == 4:
-                        continue
+                        #continue
                         x1, x2 = X[i, j], X[i, j + 1]
                         y1, y2 = Y[i, j], Y[i + 1, j + 1]
                         point_x1, point_y1 = points[0]
@@ -407,7 +401,6 @@ def extract_contour(data,levels,snap = 0.0001):
 
         contours.append(contour_line)
     return contours
-
     # Plot the contour lines
 def write_to_wkt(filename,band,levels,output,snap=0.001):
     dataset = rasterio.open(filename)
@@ -433,146 +426,6 @@ def write_to_wkt(filename,band,levels,output,snap=0.001):
             f.write(")")
             f.write(";{}\n".format(label))
     f.close()
-''' elif cell_type == 1:
-                    for k, val in enumerate(vals.flatten()):
-                        if val >= level:
-                            if k == 0:
-                                x1, y1 = X[i, j], Y[i, j]
-                                x2, y2 = X[i + 1, j], Y[i, j + 1]
-                                if val == level:
-                                    one_line = Segment(x1, y1, x1,y1, cellindex=(i, j),
-                                                       neighborcells=[(i - 1, j), (i, j - 1)])
-                                else:
-                                    startx,starty = x1 + (level - val) / (vals[k, 1] - val) * (x2 - x1),y1
-                                    endx,endy =x1, y1 + (level - val) / (vals[k+1, k] - val) * (y2 - y1)
-                                    one_line = Segment(endx,endy,startx,starty,cellindex=(i,j),neighborcells=[(i-1,j),(i,j-1)])
-                                    contour_segments.append(one_line)
-                            if k == 1:
-                                x1, y1 = X[i, j+1], Y[i, j+1]
-                                x2, y2 = X[i, j], Y[i+1, j+1]
-                                if val == level:
-                                    one_line = Segment(x1, y1, x1,y1, cellindex=(i, j),
-                                                       neighborcells=[(i - 1, j), (i, j - 1)])
-                                else:
-                                    startx,starty = x1 + (level - val) / (vals[k, 1] - val) * (x2 - x1),y1
-                                    endx,endy =x1, y1 + (level - val) / (vals[k+1, k] - val) * (y2 - y1)
-                                    one_line = Segment(endx,endy,startx,starty,cellindex=(i,j),neighborcells=[(i-1,j),(i,j-1)])
-                                    contour_segments.append(one_line)
-                            if k == 2:
-                                x1, y1 = X[i+1, j ], Y[i+1, j]
-                                x2, y2 = X[i+1, j+1], Y[i, j]
-                                if val == level:
-                                    one_line = Segment(x1, y1, x1,y1, cellindex=(i, j),
-                                                       neighborcells=[(i - 1, j), (i, j - 1)])
-                                else:
-                                    startx,starty = x1 + (level - val) / (vals[k, 1] - val) * (x2 - x1),y1
-                                    endx,endy =x1, y1 + (level - val) / (vals[k+1, k] - val) * (y2 - y1)
-                                    one_line = Segment(endx,endy,startx,starty,cellindex=(i,j),neighborcells=[(i-1,j),(i,j-1)])
-                                    contour_segments.append(one_line)
-                            if k == 3:
-                                x1, y1 = X[i + 1, j+1], Y[i + 1, j+1]
-                                x2, y2 = X[i +1, j], Y[i, j+1]
-                                if val == level:
-                                    one_line = Segment(x1, y1, x1,y1, cellindex=(i, j),
-                                                       neighborcells=[(i - 1, j), (i, j - 1)])
-                                else:
-                                    startx,starty = x1 + (level - val) / (vals[k, 1] - val) * (x2 - x1),y1
-                                    endx,endy =x1, y1 + (level - val) / (vals[k+1, k] - val) * (y2 - y1)
-                                    one_line = Segment(endx,endy,startx,starty,cellindex=(i,j),neighborcells=[(i-1,j),(i,j-1)])
-                                    contour_segments.append(one_line)
-                elif cell_type == 2:
-                    k1 = None
-                    k2 = None
-                    for k, val in enumerate(vals.flatten()):
-                        if val >= level:
-                            if k1 == None:
-                                k1 = k
-                            else:
-                                k2 = k
-                    if abs(k1-k2) == 2:
-                        if k1 == 0:
-                            x1 = X[i,j]
-                            x2 = X[i,j+1]
-                            y1 = X[i,j]
-                            y2 = X[i+1,j]
-                            startx, starty = x1 + (level - vals[0,0]) / (vals[0, 1] - vals[0,0]) * (x2 - x1), y1
-                            endx, endy = x1+ (level - vals[1,0]) / (vals[1, 1] - vals[1,0]) * (x2 - x1), y2
-                            one_line = Segment(endx, endy, startx, starty, cellindex=(i, j),
-                                               neighborcells=[(i - 1, j), (i+1, j)])
-                            contour_segments.append(one_line)
-                        elif k1 == 1:
-                            x1 = X[i, j+1]
-                            x2 = X[i, j]
-                            y1 = X[i, j]
-                            y2 = X[i + 1, j]
-                            startx, starty = x1 + (level - vals[0,1]) / (vals[0, 0] - vals[0,1]) * (x2 - x1), y1
-                            endx, endy = x1 + (level - vals[1,1]) / (vals[1, 0] - vals[1,1]) * (x2 - x1), y2
-                            one_line = Segment(endx, endy, startx, starty, cellindex=(i, j),
-                                               neighborcells=[(i - 1, j), (i+1, j)])
-                            contour_segments.append(one_line)
-                    elif abs(k1-k2) == 1:
-                        if k1 == 0:
-                            x1 = X[i,j]
-                            x2 = X[i,j+1]
-                            y1 = X[i, j]
-                            y2 = X[i + 1, j]
-                            startx, starty = x1, y1+ (level - vals[0, 0]) / (vals[1, 0] - vals[0, 0]) * (y2 - y1)
-                            endx, endy = x2, y1+ (level - vals[0, 1]) / (vals[1, 1] - vals[0, 1]) * (y2 - y1)
-                            one_line = Segment(endx, endy, startx, starty, cellindex=(i, j),
-                                               neighborcells=[(i - 1, j), (i + 1, j)])
-                            contour_segments.append(one_line)
-
-                        elif k1 == 1:
-                            x1 = X[i, j]
-                            x2 = X[i, j + 1]
-                            y1 = X[i, j]
-                            y2 = X[i + 1, j]
-                            startx, starty = x1+ (level - vals[0, 1]) / (vals[0, 0] - vals[0, 1]) * (x2 - x1), y1
-                            endx, endy = x2, y1 + (level - vals[1, 0]) / (vals[0, 0] - vals[1, 0]) * (y2 - y1)
-                            one_line = Segment(endx, endy, startx, starty, cellindex=(i, j),
-                                               neighborcells=[(i - 1, j), (i, j-1)])
-                            contour_segments.append(one_line)
-                            startx, starty = x1, y1 + (level - vals[0, 1]) / (vals[1, 1] - vals[0, 1]) * (y2 - y1)
-                            endx, endy = x2+ (level - vals[1, 0]) / (vals[1, 1] - vals[1, 0]) * (x2 - x1), y2
-                            one_line = Segment(endx, endy, startx, starty, cellindex=(i, j),
-                                               neighborcells=[(i, j+1), (i +1, j)])
-                            contour_segments.append(one_line)
-
-                        elif k1 == 2:
-                            x1 = X[i, j]
-                            x2 = X[i, j + 1]
-                            y2 = X[i, j]
-                            y1 = X[i + 1, j]
-                            startx, starty = x1, y1 + (level - vals[1, 0]) / (vals[0, 0] - vals[1, 0]) * (y2 - y1)
-                            endx, endy = x2, y1 + (level - vals[1, 1]) / (vals[0, 1] - vals[1, 1]) * (y2 - y1)
-                            one_line = Segment(endx, endy, startx, starty, cellindex=(i, j),
-                                               neighborcells=[(i - 1, j), (i + 1, j)])
-                            contour_segments.append(one_line)
-
-                    else:
-                        x1 = X[i, j]
-                        x2 = X[i, j + 1]
-                        y2 = X[i, j]
-                        y1 = X[i + 1, j]
-                        startx, starty = x1+ (level - vals[0, 0]) / (vals[0, 1] - vals[0, 0]) * (X2 - X1), y1
-                        endx, endy = x2, y1 + (level - vals[1, 1]) / (vals[0, 1] - vals[1, 1]) * (y2 - y1)
-                        one_line = Segment(endx, endy, startx, starty, cellindex=(i, j),
-                                           neighborcells=[(i - 1, j), (i, j+1)])
-                        contour_segments.append(one_line)
-
-                elif cell_type == 3:
-                    if vals[0, 0] >= level:
-                        if vals[0, 1] >= level:
-                            contour_line.append([X[i, j] + (level - vals[0, 0])/(vals[0, 1] - vals[0, 0]) * (X[i, j+1] - X[i, j]), Y[i, j]])
-                        elif vals[1, 0] >= level:
-                            contour_line.append([X[i, j], Y[i, j] + (level - vals[0, 0])/(vals[1, 0] - vals[0, 0]) * (Y[i+1, j] - Y[i, j])])
-                    elif vals[0, 1] >= level:
-                        if vals[1, 1] >= level:
-                            contour_line.append([X[i, j+1], Y[i, j+1] + (level - vals[0, 1])/(vals[1, 1] - vals[0, 1]) * (Y[i+1, j+1] - Y[i, j+1])])
-                        elif vals[1, 0] >= level:
-                            contour_line.append([X[i, j] + (level - vals[0, 1])/(vals[1, 0] - vals[0, 1]) * (X[i, j+1] - X[i, j]), Y[i+1, j]])
-                    elif vals[1, 0] >= level:
-                        contour_line.append([X[i+1, j], Y[i+1, j] + (level - vals[1, 0])/(vals[1, 1] - vals[1, 0]) * (Y[i+1, j+1] - Y[i+1, j])])'''
 def draw_contour(contours):
     for contour in contours:
         for ring in contour:
