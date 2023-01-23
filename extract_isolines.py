@@ -41,6 +41,7 @@ def startcontour(segments,snap=0.0001):
             segments.remove(seg)
             seg = segments[0]
             continue
+        # start to connect segments in the same ring
         ring.append([seg.startx,seg.starty])
 
         nextx = seg.endx
@@ -54,7 +55,7 @@ def startcontour(segments,snap=0.0001):
         seg = segments[0]
 
     return contour_line
-
+# i have write three methods to connect the segments
 def another_seg(segments,nextx,nexty,ring,seg,snap):
     segment = ring
     if nextx == None and nexty == None:
@@ -196,16 +197,17 @@ def extract_contour(data,levels,snap = 0.0001):
         # Iterate over the grid cells
         for i in range(data.shape[0]-1):
             for j in range(data.shape[1]-1):
-                # Get the cell vertices values
+                # Get the cell vertices values 
                 vals = data[i:i + 2, j:j + 2]
 
-                # Check the cell type
-                cell_type = (vals >= level).sum()
+                # Check the cell type, which relate to possible points in each ceels
+                cell_type = (vals >= level).sum() # how many possible points on cells
 
 
                 if cell_type == 0:
                     continue
                 else:
+                    # caclualte points
 
                     points = []
                     for k in range(4):
@@ -272,8 +274,9 @@ def extract_contour(data,levels,snap = 0.0001):
                             point_y = y1+((level-vals[0,0])/(vals[1,0]-vals[0,0]))*(y2-y1)
                             if (point_x, point_y) not in points:
                                 points.append((point_x, point_y))
+                    #start to connect points into segments
 
-                    if len(points)==1:
+                    if len(points)==1: 
                         point_x,point_y = points[0]
                         x1, x2 = X[i, j], X[i, j + 1]
                         y1, y2 = Y[i, j], Y[i + 1, j + 1]
