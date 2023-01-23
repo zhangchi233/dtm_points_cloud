@@ -438,6 +438,7 @@ if __name__ == '__main__':
     data = rasterio.open('cfs_withoutthinning.tif').read(1)
     contour_lines = extract_contour(data,[25],snap = 0.0001)
     draw_contour(contour_lines)
+    # compare it with plt.contour
     plt.contour(data,[25])
     plt.show() # test the contourline function
     write_to_wkt("cfs_withoutthinning.tif",1,[24,26,28],"isolines_csf.wkt",snap = 0.001)
