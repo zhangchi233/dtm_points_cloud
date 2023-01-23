@@ -19,13 +19,24 @@ filename is the output filenames
 crs the proj string of coordinate system, default is epsg:28992
 
 # extract isolines
-u can run file extract_isolines, 
+First option:
+u can run python file extract_isolines, 
 write_to_wkt can store the isolines in wkt form
 the argument filename is the raster u want to extract isoliens
 band is the band u want to extract
 levels is the levels of isolines u want to extract
 output is the output filename
 snap is the tolerence of snap when stick segments together
+
+Second option:
+file Contoutline_C++
+the input file of DEM is in following format:
+first line: x0  y0(coordinate of starting point)  A(rotation angel)  dx  dy  col  row 
+others are grid elevation stored by row; -99999.0 is an invalid value;
+the output file "lines.txt" can be opened in QGIS, first field is the id of contour lines, 
+the second field is the wkt geometry of each line, the third field is the elevation it represents.
+OSG is needed for the visualization of DEM and contourlines but it still has some problem.
+If you change the data source to "rock1.ddem",the visualization part will work, but for our data, it's not working.
 
 # how to do csf
 points_grid.py
