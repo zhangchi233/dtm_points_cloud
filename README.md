@@ -27,7 +27,7 @@ levels is the levels of isolines u want to extract
 output is the output filename
 snap is the tolerence of snap when stick segments together
 
-#how to do csf
+# how to do csf
 points_grid.py
 intput a list or array of points containing x,y,z value
 and create a object from cloth class, taking that list of points as argument
@@ -41,3 +41,23 @@ using 3d plot function in matplotlib before and after csf and extract_isolins
 open main.py file, and read the comment
 (notice these file is just use for testing, i strongly recommend u to test it seperately, since we update our code and can't make sure the code in main.py still working or noe
 furthermore since python is single thread, and it will takes u loads of time)
+# some other functions
+## how to visulize the csf process in 3d plot
+to check the result of csf, we add a dynamic method in cloth class, which is used to implement csf
+and input true or false in the argument showing originalz or show difference u can visulize the particles' 3d plot
+if both argument is false, then it show the result after csf
+## isoline extraction algorithm:
+first define the points' position on cells boundary:
+we iterate 2*2 block on dtm layer and store the coordinates of points the same as the isoline level
+according to the points' number, we form segments in each block
+store the segments two ends coordinate and its block index, and the neight block of two ends' index
+get all segments:
+in a list, find a segments neighbor segments according to segments' index and its neightbor index
+add next end into ring
+remove a segment if its two end has connected from list,
+pop a new segment and start another ring of that level
+## the main.py?
+it is like a test file to test each sections function and methods, however, since we keep update our code, some method may out of date,
+my dear teammates, strongly recommend u to test each parts method in targeted file
+## why pickle?
+it is annoying that the laspy official document so ambiguous and i dont like its way to store x,y,z value, for ur convenience, i dump it into a pickle file in the cropping.py,since each time we only use points'x,y,z values, why not just directly read from pickle file
