@@ -6,14 +6,13 @@ def write_to_file(filename,header,data):
     with laspy.open(filename, mode="w", header=header) as writer:
         if type(data) == type([]):
             data= np.array(data)
-        print
         point_record = laspy.ScaleAwarePointRecord.zeros(data.shape[0], header=header)
         point_record.x = data[:, 0]
         point_record.y = data[:, 1]
         point_record.z = data[:, 2]
         writer.write_points(point_record)
 # write back the particles back to las files
-def thinning(file,data=None,mode="grid",n_random = 10,percentage=0.9,cellsize=1,cell_manipulation='average'):
+def thinning(file=None,data=None,mode="random",n_random = 10,percentage=0.9,cellsize=1,cell_manipulation='average'):
 
     if data == None:
         data_thinning = []
@@ -25,15 +24,20 @@ def thinning(file,data=None,mode="grid",n_random = 10,percentage=0.9,cellsize=1,
                 z = points.z.copy()
                 data_thinning+=list(zip(x,y,z))
 
+
     else:
         import copy
         data_thinning = data.deepcopy()
     if mode == 'random':
         random_size = int(round(len(data_thinning)*percentage,0))
         data_thinning = np.array(data_thinning)
+        if random_size == len(data_thinning):
+            return data_thinning
         np.random.seed(101)
         np.random.shuffle(data_thinning)
+
         data_thinning=data_thinning[:random_size]
+
     elif mode == 'n_points_random':
         data_n = [data_thinning[n] for n in range(0,len(data_thinning),n_random)]
         data_thinning =np.array(data_n)
@@ -121,12 +125,14 @@ def interpolation(dt,coordinatex, coordinatey,mode="TIN"): # according to the po
             return value
     elif mode == "laplace":
         if dt.is_inside_convex_hull(coordinatex, coordinatey) == False:
+
             return -999999
         else:
             value = dt.interpolate_laplace(coordinatex,coordinatey)
             return value
     elif mode =="NNI":
         if dt.is_inside_convex_hull(coordinatex, coordinatey) == False:
+            print('coo')
             return -999999
         else:
             #print("the value is ",dt.is_inside_convex_hull(coordinatex,coordinatey))
@@ -169,7 +175,7 @@ def write_to_raster(data,driver="GTiff",filename='new.tif',CRS='+proj=sterea +la
     )
     import startinpy
     dt = startinpy.DT()
-    dt.snap_tolerance = 0.01
+    dt.snap_tolerance = 0.00001
     dt.insert(data)
     values = np.empty((height,width))
     for row in range(height):
@@ -179,7 +185,6 @@ def write_to_raster(data,driver="GTiff",filename='new.tif',CRS='+proj=sterea +la
 
            # print(row,col,width)
             value = interpolation(dt,pixel_x,pixel_y,mode=mode)
-
 
             values[row][col] = value
     new_dataset.write(values, 1)
@@ -200,14 +205,15 @@ def write_to_raster(data,driver="GTiff",filename='new.tif',CRS='+proj=sterea +la
 
 if __name__=='__main__':
 
-    d = thinning("somepath.las",mode='random',percentage=0.1)
+    #d = thinning("somepath.las",mode='random',percentage=0.1)
 
-    write_to_raster(d,filename='originl.tif',mode='laplace')
-
+    #write_to_raster(d,filename='originl.tif',mode='laplace')
     d = thinning("cfs.laz", mode='random', percentage=0.1)
     #print(d)
 
     write_to_raster(d, filename="thinning.tif",mode="laplace")
+    d = thinning("cfs.laz", mode='random', percentage=1)
 
+    write_to_raster(d, filename='csf_withoutthinning.tif', mode='laplace')
 
 
