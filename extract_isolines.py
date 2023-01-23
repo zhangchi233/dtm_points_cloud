@@ -41,7 +41,7 @@ def startcontour(segments,snap=0.0001):
         ring = []
         if seg.startx == None:
             # in case some self intersection scenario as a result of infinite loop
-            print(len(segments))
+            #print(len(segments))
             segments.remove(seg)
             seg = segments[0]
             continue
@@ -56,12 +56,8 @@ def startcontour(segments,snap=0.0001):
 
         if len(segments) == 0:
             break
-        if previous_length == len(segments):
-            print(len(segments))
-        print(len(segments))
 
         seg = segments[0]
-        previous_length = len(segments)
     return contour_line
 
 def another_seg(segments,nextx,nexty,ring,seg,snap):
@@ -577,8 +573,13 @@ def write_to_wkt(filename,band,levels,output,snap=0.001):
                             contour_line.append([X[i, j] + (level - vals[0, 1])/(vals[1, 0] - vals[0, 1]) * (X[i, j+1] - X[i, j]), Y[i+1, j]])
                     elif vals[1, 0] >= level:
                         contour_line.append([X[i+1, j], Y[i+1, j] + (level - vals[1, 0])/(vals[1, 1] - vals[1, 0]) * (Y[i+1, j+1] - Y[i+1, j])])'''
+def draw_contour(contours):
+    for contour in contours:
+        for ring in contour:
+            x,y = zip(*ring)
+            plt.plot(x,y)
+    plt.show()
 if __name__ == '__main__':
-
 
     write_to_wkt("cfs_withoutthinning.tif",1,[24,26,28],"isolines_csf.wkt",snap = 0.001)
     write_to_wkt("thinning.tif", 1, [24, 26, 28], "isolines_thinning.wkt", snap=0.001)
