@@ -47,7 +47,7 @@ def startcontour(segments,snap=0.0001):
         nextx = seg.endx
         nexty = seg.endy
         #ring = recursive_seg(segments,nextx,nexty,ring,seg)
-        ring = another_seg(segments,nextx,nexty,ring,seg,snap=snap)
+        ring = another_seg(segments,nextx,nexty,ring,seg,snap=snap) # more than one method to generate ring, after comparision, another_seg is the best
         #ring = brutal_seg(segments,nextx,nexty,ring,seg,snap = snap)
         contour_line.append(ring)
         if len(segments) == 0:
