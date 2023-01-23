@@ -29,7 +29,7 @@ output is the output filename
 snap is the tolerence of snap when stick segments together
 
 Second option:
-file Contoutline_C++
+file Isoline_C++
 the input file of DEM is in following format:
 first line: x0  y0(coordinate of starting point)  A(rotation angel)  dx  dy  col  row 
 others are grid elevation stored by row; -99999.0 is an invalid value;
