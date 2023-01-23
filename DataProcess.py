@@ -205,9 +205,9 @@ def write_to_raster(data,driver="GTiff",filename='new.tif',CRS='+proj=sterea +la
 
 if __name__=='__main__':
 
-    #d = thinning("somepath.las",mode='random',percentage=0.1)
+    d = thinning("somepath.las",mode='random',percentage=1)
 
-    #write_to_raster(d,filename='originl.tif',mode='laplace')
+    write_to_raster(d,filename='originl.tif',mode='laplace')
     d = thinning("cfs.laz", mode='random', percentage=0.1)
     #print(d)
 
