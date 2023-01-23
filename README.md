@@ -61,3 +61,5 @@ it is like a test file to test each sections function and methods, however, sinc
 my dear teammates, strongly recommend u to test each parts method in targeted file
 ## why pickle?
 it is annoying that the laspy official document so ambiguous and i dont like its way to store x,y,z value, for ur convenience, i dump it into a pickle file in the cropping.py,since each time we only use points'x,y,z values, why not just directly read from pickle file
+## about thinning
+we use random thinning(simple and easy to implement) 
