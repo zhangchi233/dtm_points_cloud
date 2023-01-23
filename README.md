@@ -63,3 +63,12 @@ my dear teammates, strongly recommend u to test each parts method in targeted fi
 it is annoying that the laspy official document so ambiguous and i dont like its way to store x,y,z value, for ur convenience, i dump it into a pickle file in the cropping.py,since each time we only use points'x,y,z values, why not just directly read from pickle file
 ## about thinning
 we use random thinning(simple and easy to implement) 
+## about file
+4 isolines,wkt form
+isolines_csf, is the isolines of csf result without thinning
+isolines_thinning is the isolines of csf raster layer after thinning
+isolines_original is the isolines of original raster layer without csf after thinning in the same range of result after csf
+isoliens_exceed_part is the isolines of original points above the range of csf isoliens
+thinning.tif is raster layer of csf result using laplace interpoaltion use random thinning only preserve 0.1 points
+original.tif is raster layer of original points after thinning using random thinning only preserve 0.1 points and interpolation method is still laplace
+csf_withoutthinnign.tif is raster layer of csf without thinning using laplace interpolation
