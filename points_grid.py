@@ -298,6 +298,7 @@ def draw_3d_points(Points,marker,zmin,zmax): # to visualize the points' position
 
 
 if __name__ == "__main__":
+    
     from generate_random import particles
 
     draw_3d_points(particles, '^')
@@ -315,5 +316,34 @@ if __name__ == "__main__":
     #print(test_particle.z)
     #print(test_particle.movedirection)
     # noproblem
+    # test and store the cropping laz file's csf into a new laz file
+    with open("database.txt",'rb') as f:
+        particles = pickle.load(f)
+        print("has read read points")
 
+
+    #points_grid.draw_3d_points(particles, '^') # u can use this to draw points in 3d scatter using matplotlib
+    #print("particles is",particles)
+    # how to run cfs ground filtering
+    clothes = cloth(particles,cellsize=5,mass=0.1,displacement=10)
+    without_cfs_points = [[pt.x,pt.y,-pt.originalZ] for row in clothes.Particles for pt in row]
+    print(without_cfs_points)
+    print("has start to do cfs")
+    particle_xyz = clothes.implementation_CSF(0.03)
+
+    # check the final resutl
+    clothes.draw_particles(show_difference=True) # check the points' shift distance
+    clothes.draw_particles(show_OriginalZ=True,zmin = -clothes.MinZ,zmax = -clothes.MaxZ) # check original points before ground filtering
+    draw_3d_points(particle_xyz, '^',-clothes.MinZ,-clothes.MaxZ) # see points after ground filtering
+
+    # write back the data to laspy
+    # how to write back the cfs points into a new las file
+    import DataProcess
+    import laspy
+    #DataProcess.write_to_raster(without_cfs_points,filename="before.tif")
+    file = "somepath.las"
+    las=laspy.read(file)
+    header = las.header
+    # write the result after csf into laz file
+    DataProcess.write_to_file("cfs.laz",header,particle_xyz)
 
